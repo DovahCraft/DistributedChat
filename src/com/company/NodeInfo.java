@@ -5,12 +5,9 @@ public class NodeInfo {
     int port;
     String name;
 
-    public NodeInfo(int inputPort, String inputName){
+    public NodeInfo(String inputIp, int inputPort, String inputName){
+        this.ip = inputIp;
         this.port = inputPort;
         this.name = inputName;
-    }
-
-    void setIp(String inputIp){
-        this.ip = inputIp;
     }
 }
