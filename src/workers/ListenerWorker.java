@@ -2,15 +2,13 @@ package workers;
 
 import com.company.ChatNode;
 import com.company.NodeInfo;
+import java.net.*;
 import message.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class ListenerWorker implements Runnable{
     Socket chatSocket;
-
     public ListenerWorker(Socket inputSocket) {
         this.chatSocket = inputSocket;
     }
@@ -21,24 +19,13 @@ public class ListenerWorker implements Runnable{
                 ObjectInputStream inputStream = new ObjectInputStream(chatSocket.getInputStream());
                 ObjectOutputStream outputStream = new ObjectOutputStream(chatSocket.getOutputStream())
         ) {
-            System.out.println("Opened listenerWorker input and output streams successfully.");
-            //Mostly place holder information
-            NodeInfo node = new NodeInfo(chatSocket.getLocalSocketAddress().toString(), chatSocket.getPort(), "Name");
-            String fromClient = inputStream.readLine();
-            if(fromClient.equals("JOIN"))
-            {
-                flagType(Type.JOIN);
+            synchronized (System.out){
+                System.out.println("Chat node connected!");
             }
-
-            else if(fromClient.equals("QUIT"))
-            {
-                flagType(Type.LEAVE);
-            }
-
-            else
-            {
-                flagType(Type.CHAT);
-            }
+            NodeInfo node = new NodeInfo(chatSocket.getPort(), "Name");
+            Message fromClient = new Message();
+            fromClient.setType(Type.CHAT);//place Holder Stuff
+            flagType(fromClient.getType());
 
         } catch (IOException e) {
             System.out.println("Couldn't open client socket in ListenerWorker!");
