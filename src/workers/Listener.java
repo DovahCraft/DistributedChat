@@ -20,9 +20,10 @@ public class Listener implements Runnable {
         System.out.println("Running listener, checking for new connections to Node");
         try (ServerSocket listenerSocket = new ServerSocket(this.port)) {
 
-            synchronized (ChatNode.thisNode){
+            synchronized (ChatNode.lock){
                 ChatNode.thisNode.setIp(InetAddress.getLocalHost().getHostAddress());
             }
+            ChatNode.thisNode.notify();
             System.out.println("This node: " + ChatNode.thisNode.toString());
             while(true) {
                 Thread listenerWorkThread = new Thread(new ListenerWorker(listenerSocket.accept()));
