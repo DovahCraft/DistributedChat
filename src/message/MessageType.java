@@ -1,6 +1,6 @@
 package message;
 
-enum Type {
+public enum MessageType {
     JOIN,
     LEAVE,
     CHAT

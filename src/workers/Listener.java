@@ -11,6 +11,7 @@ import java.net.Socket;
 public class Listener implements Runnable {
     Socket clientSocket;
     Integer port;
+
     public Listener(int port) {
         this.port = port;
     }
@@ -19,17 +20,14 @@ public class Listener implements Runnable {
     public void run() {
         System.out.println("Running listener, checking for new connections to Node");
         try (ServerSocket listenerSocket = new ServerSocket(this.port)) {
-
-            synchronized (ChatNode.thisNode){
-                ChatNode.thisNode.setIp(InetAddress.getLocalHost().getHostAddress());
-            }
+            ChatNode.thisNode.setIp(InetAddress.getLocalHost().getHostAddress());
+            ChatNode.thisNode.notify();
             System.out.println("This node: " + ChatNode.thisNode.toString());
-            while(true) {
+            while (true) {
                 Thread listenerWorkThread = new Thread(new ListenerWorker(listenerSocket.accept()));
                 listenerWorkThread.start();
             }
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

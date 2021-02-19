@@ -1,24 +1,33 @@
 package com.company;
 
+import message.ChatMessage;
+import message.Message;
+import message.MessageType;
+import message.JoinMessage;
 import workers.Listener;
-import org.w3c.dom.Node;
+import workers.Sender;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.Map;
+
+import static com.company.Utils.*;
+
 /*
 This is the core class that houses the receiver and sender classes in their threads. This represents one node in the
 mesh topology of the distributed chat system.
  */
 public class ChatNode {
-    static Map<NodeInfo, Boolean> participantsMap;
+    public static ParticipantsMap participantsMap = new ParticipantsMap();
     public static NodeInfo thisNode;
+    public static final Object lock = new Object();
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         System.out.println("Node created");
-        if(args.length != 2){
-            System.err.println("Parameter Format: <PORT> <LOGICAL NAME>");
+        if (args.length != 2) {
+            System.err.println("Parameter Format: <PORT NUMBER> <LOGICAL NAME>");
             System.exit(1);
         }
         int port = Integer.parseInt(args[0]);
@@ -26,19 +35,77 @@ public class ChatNode {
         thisNode = new NodeInfo(port, logicalName);
 
         //Create receiver thread, passing it the server socket we create.
-        try{
-            System.out.println("Waiting for user input");
+        try {
+            System.out.println("Waiting for user input\nType HELP for help");
             Thread listenerThread = new Thread(new Listener(port));
             listenerThread.start();
-            while(true){
-                //Take in input
-
-            }
-        }
-
-        catch(Exception e){
+            thisNode.wait();
+            handleUser();
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
+    }
+
+    private static void handleUser() {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String input;
+        String[] inputParts;
+        String joiningIp;
+        int joiningPort;
+        Sender sender;
+        boolean isInvalidCommand;
+        try {
+            while (true) {
+                sender = null;
+                isInvalidCommand = false;
+                input = reader.readLine();
+                inputParts = input.split(" ");
+                switch (inputParts[0]) {
+                    case "JOIN" -> {
+                        joiningIp = inputParts[1];
+                        if (isValidIpAddr(joiningIp) && isInt(inputParts[2])) {
+                            joiningPort = Integer.parseInt(inputParts[2]);
+                            sender = new Sender(
+                                    new JoinMessage(MessageType.JOIN, ChatNode.thisNode, joiningIp, joiningPort));
+                        } else {
+                            isInvalidCommand = true;
+                        }
+                    }
+                    case "LEAVE" -> sender = new Sender(new Message(MessageType.LEAVE, ChatNode.thisNode));
+
+                    case "CHAT" -> sender = new Sender(new ChatMessage(MessageType.CHAT, ChatNode.thisNode,
+                            input.split(" ", 2)[1]));
+
+                    case "HELP" -> printHelpMessage();
+
+                    case "QUIT" -> System.exit(0);
+
+                    //If command is from none of the above, mark command as invalid
+                    default -> isInvalidCommand = true;
+
+                }
+                if (sender != null) {
+                    new Thread(sender).start();
+                }
+                if (isInvalidCommand) {
+                    System.err.println("Invalid Command");
+                    printHelpMessage();
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("There was trouble reading your input.");
+            System.err.println(e.getLocalizedMessage());
+            System.exit(1);
+        }
+    }
+
+    private static void printHelpMessage() {
+        System.out.println("Commands:\n" +
+                "JOIN <IPv4 Address> <Port Number>\n" +
+                "CHAT <Message>\n" +
+                "LEAVE\n" +
+                "QUIT\n" +
+                "HELP");
     }
 }
