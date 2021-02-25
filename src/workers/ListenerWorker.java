@@ -9,6 +9,7 @@ import java.net.Socket;
 
 public class ListenerWorker implements Runnable{
     Socket chatSocket;
+
     public ListenerWorker(Socket inputSocket) {
         this.chatSocket = inputSocket;
     }
@@ -16,46 +17,63 @@ public class ListenerWorker implements Runnable{
     public void run() {
         System.out.println("Recieving message!");
         try (
-                ObjectInputStream inputStream = new ObjectInputStream(chatSocket.getInputStream());
-                ObjectOutputStream outputStream = new ObjectOutputStream(chatSocket.getOutputStream())
+                ObjectInputStream inputStream = new ObjectInputStream(chatSocket.getInputStream())
+                //ObjectOutputStream outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
         ) {
             synchronized (System.out){
                 System.out.println("Chat node connected!");
             }
-            NodeInfo node = new NodeInfo(chatSocket.getPort(), "Name");
-            Message fromClient = new Message();
-            fromClient.setType(Type.CHAT);//place Holder Stuff
-            flagType(fromClient.getType());
+            Object fromClient = inputStream.readObject();
+            Message clientMessage = (Message) fromClient;
+            checkFlagType(clientMessage);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Couldn't open client socket in ListenerWorker!");
             e.printStackTrace();
         }
     }
 
-    public static void flagType(Type type)
+    public static void checkFlagType(Message message)
     {
-        switch(type)
-        {
-            case JOIN:
-                break;
-            case LEAVE:
-                break;
-            case CHAT:
-                break;
-            default:
-                System.out.print("INVALID MESSAGE TYPE");
+        switch (message.messageType) {
+            case JOIN -> handleJoin(message);
+
+            case LEAVE -> handleLeave(message);
+            case CHAT -> {
+                ChatMessage chat = (ChatMessage) message;
+                handleChat(chat);
+            }
+            default -> System.out.print("INVALID MESSAGE TYPE");
         }
     }
 
 
-    public static void leaveChat(NodeInfo node )
+    public static void handleJoin(Message message)
     {
-        //nodes.remove(node);
+
     }
 
-    public static void joinChat(NodeInfo node)
+    public static void handleLeave(Message message )
     {
-        //nodes.add(node);
+
+    }
+
+    public static void handleChat(ChatMessage message)
+    {
+        System.out.println(message.toString());
+    }
+
+    private void sendToRest(Message message) throws IOException {
+        Socket socket;
+        ObjectOutputStream out;
+        synchronized (ChatNode.lock) {
+            for (NodeInfo node : ChatNode.participantsMap.keySet()) {
+                socket = new Socket(node.ip, node.port);
+                out = new ObjectOutputStream(socket.getOutputStream());
+                out.writeObject(message);
+                out.close();
+                socket.close();
+            }
+        }
     }
 }
