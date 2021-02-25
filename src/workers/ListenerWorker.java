@@ -2,9 +2,14 @@ package workers;
 
 import com.company.ChatNode;
 import com.company.NodeInfo;
-import java.net.*;
-import message.*;
-import java.io.*;
+import com.company.ParticipantsMap;
+import message.Message;
+import message.JoinMessage;
+import message.MessageType;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ListenerWorker implements Runnable{
@@ -23,17 +28,14 @@ public class ListenerWorker implements Runnable{
                 System.out.println("Chat node connected!");
             }
             NodeInfo node = new NodeInfo(chatSocket.getPort(), "Name");
-            Message fromClient = new Message();
-            fromClient.setType(Type.CHAT);//place Holder Stuff
-            flagType(fromClient.getType());
-
-        } catch (IOException e) {
+            Object fromClient = inputStream.readObject();
+        } catch (Exception e) {
             System.out.println("Couldn't open client socket in ListenerWorker!");
             e.printStackTrace();
         }
     }
 
-    public static void flagType(Type type)
+    public static void flagType(MessageType type)
     {
         switch(type)
         {

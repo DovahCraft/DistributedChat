@@ -30,16 +30,23 @@ public class ChatNode {
             System.err.println("Parameter Format: <PORT NUMBER> <LOGICAL NAME>");
             System.exit(1);
         }
+        //Get our port and logical name for the command line
         int port = Integer.parseInt(args[0]);
         String logicalName = args[1];
         thisNode = new NodeInfo(port, logicalName);
 
         //Create receiver thread, passing it the server socket we create.
         try {
-            System.out.println("Waiting for user input\nType HELP for help");
+            //System.out.println("Waiting for user input\nType HELP for help");
             Thread listenerThread = new Thread(new Listener(port));
             listenerThread.start();
-            thisNode.wait();
+            synchronized (ChatNode.lock){
+                ChatNode.lock.wait();
+            }
+
+            //Add ourselves to our participants map once we initialize the IP.
+            participantsMap.put(thisNode, true);
+            //This will wait for user input and spawn sender when needed.
             handleUser();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -48,6 +55,7 @@ public class ChatNode {
     }
 
     private static void handleUser() {
+        System.out.println("HandleUser Starting");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String input;
         String[] inputParts;
@@ -72,10 +80,24 @@ public class ChatNode {
                             isInvalidCommand = true;
                         }
                     }
-                    case "LEAVE" -> sender = new Sender(new Message(MessageType.LEAVE, ChatNode.thisNode));
+                    case "LEAVE" -> {
+                        if(participantsMap.size() > 1){
+                            sender = new Sender(new Message(MessageType.LEAVE, ChatNode.thisNode));
+                        }
+                        else{
+                            System.out.println("Size of particpantsmap " + participantsMap.size());
+                            System.out.println("Cannot leave yourself alone! Call QUIT to shut down the session.");
+                        }
+                    }
 
-                    case "CHAT" -> sender = new Sender(new ChatMessage(MessageType.CHAT, ChatNode.thisNode,
-                            input.split(" ", 2)[1]));
+                    case "CHAT" -> {
+                        ChatMessage chatMessage = new ChatMessage(MessageType.CHAT, ChatNode.thisNode,
+                                input.split(" ", 2)[1]);
+                        if(participantsMap.size() > 1){
+                            sender = new Sender(chatMessage);
+                        }
+                        System.out.println(chatMessage.toString());
+                    }
 
                     case "HELP" -> printHelpMessage();
 
