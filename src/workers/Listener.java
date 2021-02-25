@@ -22,8 +22,9 @@ public class Listener implements Runnable {
 
             synchronized (ChatNode.lock){
                 ChatNode.thisNode.setIp(InetAddress.getLocalHost().getHostAddress());
+                ChatNode.lock.notify();
             }
-            ChatNode.thisNode.notify();
+
             System.out.println("This node: " + ChatNode.thisNode.toString());
             while(true) {
                 Thread listenerWorkThread = new Thread(new ListenerWorker(listenerSocket.accept()));

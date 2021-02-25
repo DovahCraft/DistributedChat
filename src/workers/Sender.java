@@ -20,16 +20,16 @@ public class Sender implements Runnable {
 
     @Override
     public void run() {
-        ObjectInputStream in;
         ObjectOutputStream out;
+        ObjectInputStream in;
         Socket socket;
         try {
             switch (message.messageType) {
                 case JOIN -> {
                     JoinMessage joinMessage = (JoinMessage) message;
                     socket = new Socket(joinMessage.destinationIp, joinMessage.destinationPort);
-                    in = new ObjectInputStream(socket.getInputStream());
                     out = new ObjectOutputStream(socket.getOutputStream());
+                    in = new ObjectInputStream(socket.getInputStream());
                     out.writeObject(message);
                     synchronized (ChatNode.lock) {
                         Object othersList = in.readObject();
@@ -37,7 +37,6 @@ public class Sender implements Runnable {
                         if (othersList instanceof ParticipantsMap) {
                             ChatNode.participantsMap.putAll((ParticipantsMap) othersList);
                         }
-
                     }
                     in.close();
                     out.close();
@@ -63,11 +62,14 @@ public class Sender implements Runnable {
         ObjectOutputStream out;
         synchronized (ChatNode.lock) {
             for (NodeInfo node : ChatNode.participantsMap.keySet()) {
-                socket = new Socket(node.ip, node.port);
-                out = new ObjectOutputStream(socket.getOutputStream());
-                out.writeObject(message);
-                out.close();
-                socket.close();
+                if(!node.equals(ChatNode.thisNode)){
+                    socket = new Socket(node.ip, node.port);
+                    out = new ObjectOutputStream(socket.getOutputStream());
+                    out.writeObject(message);
+                    out.close();
+                    socket.close();
+                }
+
             }
         }
     }

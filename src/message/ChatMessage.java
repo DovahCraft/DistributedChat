@@ -9,4 +9,9 @@ public class ChatMessage extends Message {
         super(messageType, source);
         this.payload = payload;
     }
+
+    @Override
+    public String toString() {
+        return source.name + " : " + payload;
+    }
 }
