@@ -30,6 +30,7 @@ public class Sender implements Runnable {
                     out.flush();
                     in = new ObjectInputStream(socket.getInputStream());
                     out.writeObject(message);
+                    out.flush();
                     ParticipantsMap othersList = (ParticipantsMap) in.readObject();
                     //Action if null?
                     ChatNode.participantsMap.putAll(othersList);

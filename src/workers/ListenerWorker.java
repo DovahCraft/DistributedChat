@@ -56,6 +56,7 @@ public class ListenerWorker implements Runnable {
                     && message.source.port == chatSocket.getPort()) {
                 Utils.sendToAll(message);
                 outputStream.writeObject(ChatNode.participantsMap);
+                outputStream.flush();
             }
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
