@@ -1,12 +1,10 @@
 package workers;
 
 import com.company.ChatNode;
-import com.company.NodeInfo;
 import com.company.ParticipantsMap;
+import com.company.Utils;
 import message.Message;
 import message.JoinMessage;
-
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -43,10 +41,10 @@ public class Sender implements Runnable {
                     socket.close();
                 }
 
-                case CHAT -> sendToAll();
+                case CHAT -> Utils.sendToAll(message);
 
                 case LEAVE -> {
-                    sendToAll();
+                    Utils.sendToAll(message);
                     synchronized (ChatNode.lock) {
                         ChatNode.participantsMap.clear();
                     }
@@ -57,20 +55,5 @@ public class Sender implements Runnable {
         }
     }
 
-    private void sendToAll() throws IOException {
-        Socket socket;
-        ObjectOutputStream out;
-        synchronized (ChatNode.lock) {
-            for (NodeInfo node : ChatNode.participantsMap.keySet()) {
-                if(!node.equals(ChatNode.thisNode)){
-                    socket = new Socket(node.ip, node.port);
-                    out = new ObjectOutputStream(socket.getOutputStream());
-                    out.writeObject(message);
-                    out.close();
-                    socket.close();
-                }
 
-            }
-        }
-    }
 }

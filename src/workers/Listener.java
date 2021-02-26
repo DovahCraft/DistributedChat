@@ -25,7 +25,6 @@ public class Listener implements Runnable {
                 ChatNode.lock.notify();
             }
 
-            System.out.println("This node: " + ChatNode.thisNode.toString());
             while(true) {
                 Thread listenerWorkThread = new Thread(new ListenerWorker(listenerSocket.accept()));
                 listenerWorkThread.start();
