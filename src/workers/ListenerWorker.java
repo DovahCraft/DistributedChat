@@ -55,7 +55,6 @@ public class ListenerWorker implements Runnable {
             ChatNode.participantsMap.put(message.source, true);
             if (message.source.ip.equals(chatSocket.getInetAddress().getHostAddress())
                     && message.source.port == chatSocket.getPort()) {
-                System.out.println(ChatNode.participantsMap.toString());
                 outputStream.writeObject(ChatNode.participantsMap);
                 outputStream.flush();
                 Utils.sendToAll(message);
