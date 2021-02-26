@@ -37,7 +37,7 @@ public class ListenerWorker implements Runnable {
             checkFlagType(clientMessage);
         } catch (Exception e) {
             System.out.println("Couldn't open client socket in ListenerWorker!");
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 
@@ -53,7 +53,6 @@ public class ListenerWorker implements Runnable {
 
     public void handleJoin(JoinMessage message) {
         try {
-            ChatNode.participantsMap.put(message.source, true);
             String socketIP = chatSocket.getInetAddress().getHostAddress();
             //Integer socketPort = chatSocket.getPort();
             System.out.println("Message IP: " + message.source.ip + " Message Port: " + message.source.port + " SocketIP: " + socketIP);
@@ -63,6 +62,8 @@ public class ListenerWorker implements Runnable {
                 outputStream.flush();
                 Utils.sendToAll(message);
             }
+            ChatNode.participantsMap.put(message.source, true);
+
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
         }
@@ -71,15 +72,11 @@ public class ListenerWorker implements Runnable {
     }
 
     public void handleLeave(Message message) {
-        try {
-            if (message.source.ip.equals(chatSocket.getInetAddress().getHostAddress())
-                    && message.source.port == chatSocket.getPort()) {
-                Utils.sendToAll(message);
-            }
-        } catch (Exception e) {
-            System.err.println(e.getLocalizedMessage());
-        }
-        ChatNode.participantsMap.remove(message.source, true);
+        System.out.println(message.source.toString());
+        System.out.println(ChatNode.participantsMap.containsKey(message.source));
+        ChatNode.participantsMap.remove(message.source);
+        System.out.println(ChatNode.participantsMap.remove(message.source));
+
     }
 
     public void handleChat(ChatMessage message) {

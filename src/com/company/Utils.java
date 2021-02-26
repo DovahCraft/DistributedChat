@@ -27,6 +27,7 @@ public class Utils {
         Socket socket;
         ObjectOutputStream out;
         synchronized (ChatNode.lock) {
+            System.out.println(ChatNode.participantsMap.toString());
             for (NodeInfo node : ChatNode.participantsMap.keySet()) {
                 if (!node.equals(ChatNode.thisNode)) {
                     socket = new Socket(node.ip, node.port);

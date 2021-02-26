@@ -36,6 +36,7 @@ public class Sender implements Runnable {
                         System.out.println("Wrote object sucessfully");
                         out.flush();
                         try {
+                            //reads the participant list sent back
                             ParticipantsMap othersList = (ParticipantsMap) in.readObject();
                             ChatNode.participantsMap.putAll(othersList);
                         } catch (EOFException e) {
@@ -50,9 +51,13 @@ public class Sender implements Runnable {
                 case CHAT -> Utils.sendToAll(message);
 
                 case LEAVE -> {
-                    Utils.sendToAll(message);
-                    synchronized (ChatNode.lock) {
-                        ChatNode.participantsMap.clear();
+                    try {
+                        Utils.sendToAll(message);
+                        synchronized (ChatNode.lock) {
+                            ChatNode.participantsMap.clear();
+                        }
+                    } catch (Exception e){
+                        System.err.println(e.getLocalizedMessage());
                     }
                 }
             }
