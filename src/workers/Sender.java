@@ -27,15 +27,13 @@ public class Sender implements Runnable {
                     JoinMessage joinMessage = (JoinMessage) message;
                     socket = new Socket(joinMessage.destinationIp, joinMessage.destinationPort);
                     out = new ObjectOutputStream(socket.getOutputStream());
+                    out.flush();
                     in = new ObjectInputStream(socket.getInputStream());
                     out.writeObject(message);
-                    synchronized (ChatNode.lock) {
-                        Object othersList = in.readObject();
-                        //Action if null?
-                        if (othersList instanceof ParticipantsMap) {
-                            ChatNode.participantsMap.putAll((ParticipantsMap) othersList);
-                        }
-                    }
+                    ParticipantsMap othersList = (ParticipantsMap) in.readObject();
+                    //Action if null?
+                    ChatNode.participantsMap.putAll(othersList);
+
                     in.close();
                     out.close();
                     socket.close();

@@ -15,6 +15,7 @@ public class ListenerWorker implements Runnable {
     public ListenerWorker(Socket inputSocket) throws IOException {
         this.chatSocket = inputSocket;
         outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
+        outputStream.flush();
         inputStream = new ObjectInputStream(chatSocket.getInputStream());
     }
 
