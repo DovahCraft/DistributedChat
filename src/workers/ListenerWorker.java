@@ -55,10 +55,9 @@ public class ListenerWorker implements Runnable {
         try {
             ChatNode.participantsMap.put(message.source, true);
             String socketIP = chatSocket.getInetAddress().getHostAddress();
-            Integer socketPort = chatSocket.getPort();
-            System.out.println("Message IP: " + message.source.ip + " Message Port: " + message.source.port + " SocketIP: " + socketIP + " SocketPort: " + socketPort.toString());
-            if (message.source.ip.equals(socketIP)
-                    && message.source.port == socketPort) {
+            //Integer socketPort = chatSocket.getPort();
+            System.out.println("Message IP: " + message.source.ip + " Message Port: " + message.source.port + " SocketIP: " + socketIP);
+            if (message.source.ip.equals(socketIP)) {
                 System.out.println("Running condition in handlejoin");
                 outputStream.writeObject(ChatNode.participantsMap);
                 outputStream.flush();
