@@ -1,7 +1,12 @@
 package com.company;
 
+import message.Message;
+
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Arrays;
-import java.util.regex.Pattern;
+
 
 public class Utils {
     public static boolean isValidIpAddr(String ipAddr) {
@@ -15,6 +20,23 @@ public class Utils {
             return true;
         } catch (NumberFormatException n) {
             return false;
+        }
+    }
+
+    public static void sendToAll(Message message) throws IOException {
+        Socket socket;
+        ObjectOutputStream out;
+        synchronized (ChatNode.lock) {
+            for (NodeInfo node : ChatNode.participantsMap.keySet()) {
+                if (!node.equals(ChatNode.thisNode)) {
+                    socket = new Socket(node.ip, node.port);
+                    out = new ObjectOutputStream(socket.getOutputStream());
+                    out.writeObject(message);
+                    out.close();
+                    socket.close();
+                }
+
+            }
         }
     }
 }
