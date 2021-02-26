@@ -12,6 +12,7 @@ public class ListenerWorker implements Runnable {
     final Socket chatSocket;
     final ObjectOutputStream outputStream;
     final ObjectInputStream inputStream;
+
     public ListenerWorker(Socket inputSocket) throws IOException {
         this.chatSocket = inputSocket;
         outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
@@ -54,9 +55,10 @@ public class ListenerWorker implements Runnable {
             ChatNode.participantsMap.put(message.source, true);
             if (message.source.ip.equals(chatSocket.getInetAddress().getHostAddress())
                     && message.source.port == chatSocket.getPort()) {
-                Utils.sendToAll(message);
+                System.out.println(ChatNode.participantsMap.toString());
                 outputStream.writeObject(ChatNode.participantsMap);
                 outputStream.flush();
+                Utils.sendToAll(message);
             }
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
