@@ -1,7 +1,9 @@
 package com.company;
 
 
-public class NodeInfo {
+import java.io.Serializable;
+
+public class NodeInfo implements Serializable {
     public String ip;
     public int port;
     public String name;

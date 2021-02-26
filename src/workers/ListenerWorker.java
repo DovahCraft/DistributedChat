@@ -9,18 +9,22 @@ import java.io.*;
 import java.net.Socket;
 
 public class ListenerWorker implements Runnable {
-    Socket chatSocket;
-
-    public ListenerWorker(Socket inputSocket) {
+    final Socket chatSocket;
+    final ObjectOutputStream outputStream;
+    final ObjectInputStream inputStream;
+    public ListenerWorker(Socket inputSocket) throws IOException {
         this.chatSocket = inputSocket;
+        outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
+        inputStream = new ObjectInputStream(chatSocket.getInputStream());
     }
 
     @Override
     public void run() {
         System.out.println("Recieving message!");
         try (
-                ObjectInputStream inputStream = new ObjectInputStream(chatSocket.getInputStream())
-                //ObjectOutputStream outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
+                chatSocket;
+                outputStream;
+                inputStream
         ) {
             synchronized (System.out) {
                 System.out.println("Chat node connected!");
@@ -36,27 +40,26 @@ public class ListenerWorker implements Runnable {
 
     public void checkFlagType(Message message) {
         switch (message.messageType) {
-            case JOIN -> handleJoin(message);
+            case JOIN -> handleJoin((JoinMessage) message);
             case LEAVE -> handleLeave(message);
-            case CHAT -> {
-                ChatMessage chat = (ChatMessage) message;
-                handleChat(chat);
-            }
+            case CHAT -> handleChat((ChatMessage) message);
             default -> System.out.print("INVALID MESSAGE TYPE");
         }
     }
 
 
-    public void handleJoin(Message message) {
+    public void handleJoin(JoinMessage message) {
         try {
+            ChatNode.participantsMap.put(message.source, true);
             if (message.source.ip.equals(chatSocket.getInetAddress().getHostAddress())
                     && message.source.port == chatSocket.getPort()) {
                 Utils.sendToAll(message);
+                outputStream.writeObject(ChatNode.participantsMap);
             }
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
         }
-        ChatNode.participantsMap.put(message.source, true);
+
     }
 
     public void handleLeave(Message message) {
