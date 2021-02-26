@@ -43,7 +43,7 @@ public class ChatNode {
             synchronized (ChatNode.lock){
                 ChatNode.lock.wait();
             }
-
+            System.out.println("This node: " + ChatNode.thisNode.toString());
             //Add ourselves to our participants map once we initialize the IP.
             participantsMap.put(thisNode, true);
             //This will wait for user input and spawn sender when needed.

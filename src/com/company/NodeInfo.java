@@ -29,6 +29,6 @@ public class NodeInfo {
 
     @Override
     public String toString() {
-        return "IP: " + this.ip + "Port: " + this.port + "Name: " + this.name;
+        return "IP: " + this.ip + " Port: " + this.port + " Name: " + this.name;
     }
 }
