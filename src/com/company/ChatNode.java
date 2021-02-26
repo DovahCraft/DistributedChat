@@ -72,7 +72,7 @@ public class ChatNode {
                 switch (inputParts[0]) {
                     case "JOIN" -> {
                         joiningIp = inputParts[1];
-                        if (isValidIpAddr(joiningIp) && isInt(inputParts[2])) {
+                        if (inputParts.length == 3 && isValidIpAddr(joiningIp) && isInt(inputParts[2])) {
                             joiningPort = Integer.parseInt(inputParts[2]);
                             sender = new Sender(
                                     new JoinMessage(MessageType.JOIN, ChatNode.thisNode, joiningIp, joiningPort));
