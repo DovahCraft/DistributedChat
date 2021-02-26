@@ -33,6 +33,7 @@ public class Sender implements Runnable {
                     ) {
                         out.flush();
                         out.writeObject(message);
+                        System.out.println("Wrote object sucessfully");
                         out.flush();
                         try {
                             ParticipantsMap othersList = (ParticipantsMap) in.readObject();

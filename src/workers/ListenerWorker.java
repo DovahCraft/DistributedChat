@@ -32,6 +32,7 @@ public class ListenerWorker implements Runnable {
                 System.out.println("Chat node connected!");
             }
             Object fromClient = inputStream.readObject();
+            System.out.println("Reading object");
             Message clientMessage = (Message) fromClient;
             checkFlagType(clientMessage);
         } catch (Exception e) {
@@ -53,8 +54,12 @@ public class ListenerWorker implements Runnable {
     public void handleJoin(JoinMessage message) {
         try {
             ChatNode.participantsMap.put(message.source, true);
-            if (message.source.ip.equals(chatSocket.getInetAddress().getHostAddress())
-                    && message.source.port == chatSocket.getPort()) {
+            String socketIP = chatSocket.getInetAddress().getHostAddress();
+            Integer socketPort = chatSocket.getPort();
+            System.out.println("Message IP: " + message.source.ip + " Message Port: " + message.source.port + " SocketIP: " + socketIP + " SocketPort: " + socketPort.toString());
+            if (message.source.ip.equals(socketIP)
+                    && message.source.port == socketPort) {
+                System.out.println("Running condition in handlejoin");
                 outputStream.writeObject(ChatNode.participantsMap);
                 outputStream.flush();
                 Utils.sendToAll(message);
@@ -62,6 +67,7 @@ public class ListenerWorker implements Runnable {
         } catch (Exception e) {
             System.err.println(e.getLocalizedMessage());
         }
+        System.out.println("Finished if statement");
 
     }
 
