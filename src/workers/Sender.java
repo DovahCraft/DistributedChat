@@ -52,7 +52,9 @@ public class Sender implements Runnable {
 
                 case LEAVE -> {
                     try {
-                        Utils.sendToAll(message);
+                        while (!Utils.sendToAll(message)) {
+                            Utils.sendToAll(message);
+                        }
                         synchronized (ChatNode.lock) {
                             ChatNode.participantsMap.clear();
                         }
