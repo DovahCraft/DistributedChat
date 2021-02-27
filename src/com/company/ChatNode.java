@@ -99,6 +99,12 @@ public class ChatNode {
 
                     case "HELP" -> printHelpMessage();
 
+                    case "LIST" -> {
+                        synchronized (ChatNode.lock){
+                            System.out.println(ChatNode.participantsMap.toString());
+                        }
+                    }
+
                     case "QUIT" -> System.exit(0);
 
                     //If command is from none of the above, mark command as invalid
