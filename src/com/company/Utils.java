@@ -23,21 +23,29 @@ public class Utils {
         }
     }
 
-    public static void sendToAll(Message message) throws IOException {
+    public static Boolean sendToAll(Message message) throws IOException {
         Socket socket;
         ObjectOutputStream out;
         synchronized (ChatNode.lock) {
             System.out.println(ChatNode.participantsMap.toString());
             for (NodeInfo node : ChatNode.participantsMap.keySet()) {
-                if (!node.equals(ChatNode.thisNode)) {
-                    socket = new Socket(node.ip, node.port);
-                    out = new ObjectOutputStream(socket.getOutputStream());
-                    out.writeObject(message);
-                    out.close();
-                    socket.close();
+                try {
+                    if (!node.equals(ChatNode.thisNode)) {
+                        socket = new Socket(node.ip, node.port);
+                        while (!socket.isConnected()) {
+                            socket.close();
+                            socket = new Socket(node.ip, node.port);
+                        }
+                        out = new ObjectOutputStream(socket.getOutputStream());
+                        out.writeObject(message);
+                        out.close();
+                        socket.close();
+                    }
+                } catch (Exception e) {
+                    return false;
                 }
-
             }
+            return true;
         }
     }
 }
