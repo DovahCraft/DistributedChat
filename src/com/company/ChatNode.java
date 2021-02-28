@@ -67,7 +67,7 @@ public class ChatNode {
         boolean isInvalidCommand;
         try {
             //Execute our loop
-            while (true) 
+            while (true) {
                 //assign variables
                 sender = null;
                 isInvalidCommand = false;
