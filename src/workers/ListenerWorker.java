@@ -97,6 +97,7 @@ public class ListenerWorker implements Runnable {
                     foundNode = node;
                 }
         }
+
         ChatNode.participantsMap.remove(foundNode);
         }
 
@@ -104,5 +105,6 @@ public class ListenerWorker implements Runnable {
 
     public void handleChat(ChatMessage message) {
         System.out.println(message.toString());
+
     }
 }

@@ -32,10 +32,6 @@ public class Utils {
                 try {
                     if (!node.equals(ChatNode.thisNode)) {
                         socket = new Socket(node.ip, node.port);
-                        while (!socket.getInetAddress().isReachable(500)) {
-                            socket.close();
-                            socket = new Socket(node.ip, node.port);
-                        }
                         out = new ObjectOutputStream(socket.getOutputStream());
                         out.writeObject(message);
                         out.flush();

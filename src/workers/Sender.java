@@ -57,6 +57,7 @@ public class Sender implements Runnable {
                         }
                         synchronized (ChatNode.lock) {
                             ChatNode.participantsMap.clear();
+                            ChatNode.participantsMap.put(ChatNode.thisNode, true);
                         }
                     } catch (Exception e){
                         System.err.println(e.getLocalizedMessage());
