@@ -18,13 +18,16 @@ This is the core class that houses the receiver and sender classes in their thre
 mesh topology of the distributed chat system.
  */
 public class ChatNode {
+    //Store participants list in a map
     public static ParticipantsMap participantsMap = new ParticipantsMap();
+    //Create the current node and its information
     public static NodeInfo thisNode;
     public static final Object lock = new Object();
 
     public static void main(String[] args) {
         System.out.println("Node created");
         if (args.length != 2) {
+            //If format is not correct inform the user of the correct format
             System.err.println("Parameter Format: <PORT NUMBER> <LOGICAL NAME>");
             System.exit(1);
         }
@@ -55,6 +58,7 @@ public class ChatNode {
     private static void handleUser() {
         System.out.println("HandleUser Starting");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        //init variables
         String input;
         String[] inputParts;
         String joiningIp;
@@ -62,49 +66,64 @@ public class ChatNode {
         Sender sender;
         boolean isInvalidCommand;
         try {
-            while (true) {
+            //Execute our loop
+            while (true) 
+                //assign variables
                 sender = null;
                 isInvalidCommand = false;
                 input = reader.readLine();
                 inputParts = input.split(" ");
                 switch (inputParts[0]) {
+                    //Handle user calling JOIN  
                     case "JOIN" -> {
+                        //Get the joining IP from command line
                         joiningIp = inputParts[1];
                         if (inputParts.length == 3 && isValidIpAddr(joiningIp) && isInt(inputParts[2])) {
+                            //Assign the port from command line
                             joiningPort = Integer.parseInt(inputParts[2]);
+                            //Create a sender of message type JOIN
                             sender = new Sender(
                                     new JoinMessage(MessageType.JOIN, ChatNode.thisNode, joiningIp, joiningPort));
                         } else {
                             isInvalidCommand = true;
                         }
                     }
+                    //Handle user calling LEAVE  
                     case "LEAVE" -> {
                         if(participantsMap.size() > 1){
+                            //Create a sender of message type LEAVE
                             sender = new Sender(new Message(MessageType.LEAVE, ChatNode.thisNode));
                         }
                         else{
+                            //If user is alone it cannot leave
                             System.out.println("Size of particpantsmap " + participantsMap.size());
                             System.out.println("Cannot leave yourself alone! Call QUIT to shut down the session.");
                         }
                     }
-
+                      
+                    //Handle user calling CHAT
                     case "CHAT" -> {
+                        //Create new chat message and it's payload
                         ChatMessage chatMessage = new ChatMessage(MessageType.CHAT, ChatNode.thisNode,
                                 input.split(" ", 2)[1]);
+                        //Only create a new sender if the participants list has more than one node
                         if(participantsMap.size() > 1){
                             sender = new Sender(chatMessage);
                         }
                         System.out.println(chatMessage.toString());
                     }
-
+                    //Handle user calling HELP  
                     case "HELP" -> printHelpMessage();
-
+                        
+                    //Handle user calling LIST  
                     case "LIST" -> {
+                        //show list of current participants
                         synchronized (ChatNode.lock){
                             System.out.println(ChatNode.participantsMap.toString());
                         }
                     }
-
+                       
+                    //Handle user calling QUIT    
                     case "QUIT" -> System.exit(0);
 
                     //If command is from none of the above, mark command as invalid
@@ -114,6 +133,7 @@ public class ChatNode {
                 if (sender != null) {
                     new Thread(sender).start();
                 }
+                //Check if the current command is Valid
                 if (isInvalidCommand) {
                     System.err.println("Invalid Command");
                     printHelpMessage();
@@ -125,7 +145,8 @@ public class ChatNode {
             System.exit(1);
         }
     }
-
+    
+    //class that shows the valid commands 
     private static void printHelpMessage() {
         System.out.println("Commands:\n" +
                 "JOIN <IPv4 Address> <Port Number>\n" +
