@@ -57,7 +57,7 @@ public class Sender implements Runnable {
                 case CHAT -> Utils.sendToAll(message);
 
                 case LEAVE -> {
-                    try 
+                    try {
                         //until message has been sent to all, keep sending
                         while (!Utils.sendToAll(message)) {
                             Utils.sendToAll(message);
