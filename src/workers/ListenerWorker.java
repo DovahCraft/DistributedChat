@@ -9,12 +9,14 @@ import org.w3c.dom.Node;
 
 import java.io.*;
 import java.net.Socket;
-
+//Class for listening for connections
 public class ListenerWorker implements Runnable {
+    //Init Variables
     final Socket chatSocket;
     final ObjectOutputStream outputStream;
     final ObjectInputStream inputStream;
-
+    
+    //Assign variables
     public ListenerWorker(Socket inputSocket) throws IOException {
         this.chatSocket = inputSocket;
         outputStream = new ObjectOutputStream(chatSocket.getOutputStream());
@@ -23,6 +25,7 @@ public class ListenerWorker implements Runnable {
     }
 
     @Override
+    //function to handle our messages 
     public void run() {
         System.out.println("Recieving message!");
         try (
@@ -30,11 +33,14 @@ public class ListenerWorker implements Runnable {
                 outputStream;
                 inputStream
         ) {
+            //Notify the user of a new connection
             synchronized (System.out) {
                 System.out.println("Chat node connected!");
             }
+            //Get info from connection
             Object fromClient = inputStream.readObject();
             System.out.println("Reading object");
+            //set variables
             Message clientMessage = (Message) fromClient;
             checkFlagType(clientMessage);
         } catch (Exception e) {
@@ -42,7 +48,8 @@ public class ListenerWorker implements Runnable {
             e.printStackTrace();
         }
     }
-
+    
+    //function to check what kind of message type we have
     public void checkFlagType(Message message) {
         switch (message.messageType) {
             case JOIN -> handleJoin((JoinMessage) message);
@@ -52,9 +59,10 @@ public class ListenerWorker implements Runnable {
         }
     }
 
-
+    //function for handline joining node
     public void handleJoin(JoinMessage message) {
         try {
+            //set variables
             Boolean isIn = false;
             String socketIP = chatSocket.getInetAddress().getHostAddress();
             //Integer socketPort = chatSocket.getPort();
@@ -68,6 +76,7 @@ public class ListenerWorker implements Runnable {
                 Utils.sendToAll(message);
             }
             synchronized (ChatNode.lock) {
+                //Check if node is in particpantsMap
                 for (NodeInfo node : ChatNode.participantsMap.keySet()){
                     if (node.equals(message.source)) {
                         isIn = true;
@@ -75,6 +84,7 @@ public class ListenerWorker implements Runnable {
                     }
                 }
             }
+            //Insert current node into particpantsMap
             synchronized (ChatNode.lock) {
                 if(!isIn) {
                     ChatNode.participantsMap.put(message.source, true);
@@ -87,22 +97,28 @@ public class ListenerWorker implements Runnable {
         System.out.println("Finished if statement");
 
     }
-
+    
+    //Handle the leave message from a node
     public void handleLeave(Message message) {
+        //set variables
         NodeInfo toRemove = (NodeInfo) message.source;
         NodeInfo foundNode = null;
         synchronized (ChatNode.lock) {
+        //Iterate through the participantsMap
         for (NodeInfo node : ChatNode.participantsMap.keySet()){
+                //If the the node is in the map set it to foundNode
                 if (node.equals(toRemove)) {
                     foundNode = node;
                 }
         }
-
+            
+        //remove the found Node
         ChatNode.participantsMap.remove(foundNode);
         }
 
     }
-
+    
+    //function to print out the chat message
     public void handleChat(ChatMessage message) {
         System.out.println(message.toString());
 
