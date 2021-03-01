@@ -1,11 +1,11 @@
 package com.company;
 
-import message.ChatMessage;
-import message.Message;
-import message.MessageType;
-import message.JoinMessage;
-import workers.Listener;
-import workers.Sender;
+import com.company.messages.ChatMessage;
+import com.company.messages.Message;
+import com.company.messages.MessageType;
+import com.company.messages.JoinMessage;
+import com.company.workers.Listener;
+import com.company.workers.Sender;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -56,7 +56,6 @@ public class ChatNode {
     }
 
     private static void handleUser() {
-        System.out.println("HandleUser Starting");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         //init variables
         String input;
@@ -81,7 +80,7 @@ public class ChatNode {
                         if (inputParts.length == 3 && isValidIpAddr(joiningIp) && isInt(inputParts[2])) {
                             //Assign the port from command line
                             joiningPort = Integer.parseInt(inputParts[2]);
-                            //Create a sender of message type JOIN
+                            //Create a sender of com.company.message type JOIN
                             sender = new Sender(
                                     new JoinMessage(MessageType.JOIN, ChatNode.thisNode, joiningIp, joiningPort));
                         } else {
@@ -91,19 +90,19 @@ public class ChatNode {
                     //Handle user calling LEAVE  
                     case "LEAVE" -> {
                         if(participantsMap.size() > 1){
-                            //Create a sender of message type LEAVE
+                            //Create a sender of com.company.message type LEAVE
                             sender = new Sender(new Message(MessageType.LEAVE, ChatNode.thisNode));
                         }
-                        else{
+                        else {
                             //If user is alone it cannot leave
-                            System.out.println("Size of particpantsmap " + participantsMap.size());
+                            System.out.println("Size of particpants map is " + participantsMap.size());
                             System.out.println("Cannot leave yourself alone! Call QUIT to shut down the session.");
                         }
                     }
                       
                     //Handle user calling CHAT
                     case "CHAT" -> {
-                        //Create new chat message and it's payload
+                        //Create new chat com.company.message and it's payload
                         ChatMessage chatMessage = new ChatMessage(MessageType.CHAT, ChatNode.thisNode,
                                 input.split(" ", 2)[1]);
                         //Only create a new sender if the participants list has more than one node

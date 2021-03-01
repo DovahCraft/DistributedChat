@@ -1,11 +1,9 @@
-package workers;
+package com.company.workers;
 
 import com.company.ChatNode;
-import com.company.NodeInfo;
 
 import java.io.IOException;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 

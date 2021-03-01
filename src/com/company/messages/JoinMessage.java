@@ -1,8 +1,8 @@
-package message;
+package com.company.messages;
 
 import com.company.NodeInfo;
 
-//Create message of type join
+//Create com.company.message of type join
 public class JoinMessage extends Message {
     //init variables
     final public String destinationIp;

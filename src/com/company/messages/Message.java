@@ -1,4 +1,4 @@
-package message;
+package com.company.messages;
 
 import com.company.NodeInfo;
 

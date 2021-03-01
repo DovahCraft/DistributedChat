@@ -1,6 +1,6 @@
 package com.company;
 
-import message.Message;
+import com.company.messages.Message;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -32,7 +32,6 @@ public class Utils {
         ObjectOutputStream out;
         //Lock for safety purposes
         synchronized (ChatNode.lock) {
-            System.out.println(ChatNode.participantsMap.toString());
             //Loop thorugh the hash map
             for (NodeInfo node : ChatNode.participantsMap.keySet()) {
                 try {
